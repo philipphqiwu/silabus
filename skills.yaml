@@ -1,0 +1,68 @@
+# Skill taxonomy. `make taxonomy-sync` loads this into the skills table and sets
+# taxonomy_version to the file hash. Matching is case-insensitive and an alias
+# may only map to one canonical skill.
+#
+# This is a seed list. I will grow it to 120+ entries as I label postings.
+version: 1
+
+skills:
+  - canonical: Python
+    aliases: [python3, py, python 3]
+  - canonical: JavaScript
+    aliases: [js, ecmascript, es6, es2015]
+  - canonical: TypeScript
+    aliases: [ts]
+  - canonical: Node.js
+    aliases: [node, nodejs, node js]
+  - canonical: React
+    aliases: [reactjs, react.js]
+  - canonical: Vue.js
+    aliases: [vue, vuejs, vue3]
+  - canonical: Go
+    aliases: [golang, go lang]
+  - canonical: Java
+    aliases: [java 8, java 11, java 17, java 21]
+  - canonical: Kotlin
+    aliases: []
+  - canonical: PHP
+    aliases: [php8, php 8]
+  - canonical: Laravel
+    aliases: []
+  - canonical: Ruby
+    aliases: []
+  - canonical: PostgreSQL
+    aliases: [postgres, psql, pgsql]
+  - canonical: MySQL
+    aliases: [mariadb]
+  - canonical: Redis
+    aliases: []
+  - canonical: Kafka
+    aliases: [apache kafka]
+  - canonical: Docker
+    aliases: [containerization, kontainerisasi]
+  - canonical: Kubernetes
+    aliases: [k8s]
+  - canonical: Terraform
+    aliases: [tf]
+  - canonical: AWS
+    aliases: [amazon web services]
+  - canonical: GCP
+    aliases: [google cloud, google cloud platform]
+  - canonical: Git
+    aliases: [gitlab, github, version control]
+  - canonical: SQL
+    aliases: []
+  - canonical: Machine Learning
+    aliases: [ml, pembelajaran mesin]
+  - canonical: Pandas
+    aliases: []
+  - canonical: Airflow
+    aliases: [apache airflow]
+  - canonical: dbt
+    aliases: []
+  - canonical: Figma
+    aliases: []
+  - canonical: Flutter
+    aliases: []
+  - canonical: React Native
+    aliases: [reactnative]
