@@ -17,11 +17,8 @@ down: ## stop containers, keep the volume
 logs: ## tail Postgres logs
 	$(COMPOSE) logs -f db
 
-migrate: ## apply db/migrations/*.sql in filename order
-	@for f in db/migrations/*.sql; do \
-		echo ">> $$f"; \
-		psql "$(DATABASE_URL)" -v ON_ERROR_STOP=1 -q -f "$$f" || exit 1; \
-	done
+migrate: ## apply pending db/migrations
+	uv run silabus migrate
 
 reset-db: ## DESTRUCTIVE: drop the volume, recreate, migrate
 	$(COMPOSE) down -v
@@ -31,8 +28,8 @@ reset-db: ## DESTRUCTIVE: drop the volume, recreate, migrate
 taxonomy-sync: ## sync skills.yaml into the skills table
 	uv run silabus taxonomy-sync
 
-ingest: ## ingest listings; SOURCE=fixtures|curated|greenhouse|lever
-	uv run silabus ingest --source $${SOURCE:-fixtures}
+ingest: ## ingest postings; SOURCE=fixtures|greenhouse, BOARD=acme
+	uv run silabus ingest --source $${SOURCE:-fixtures} $${BOARD:+--board $${BOARD}}
 
 eval: ## score extraction; MODE=smoke (reports only) or full (gates)
 	uv run silabus eval --mode $${MODE:-smoke}

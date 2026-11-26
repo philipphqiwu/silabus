@@ -1,0 +1,60 @@
+{
+  "meta": { "total": 5 },
+  "jobs": [
+    {
+      "id": 9001,
+      "title": "Backend Engineer (Go)",
+      "company_name": "Acme Nusantara",
+      "updated_at": "2026-11-20T09:15:00-05:00",
+      "first_published": "2026-11-02T03:00:00-05:00",
+      "absolute_url": "https://boards.greenhouse.io/acmenusantara/jobs/9001?utm_source=linkedin&utm_medium=social",
+      "location": { "name": "Jakarta Selatan, Indonesia" },
+      "content": "&lt;p&gt;We are looking for a backend engineer to work on our payments platform.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Go and PostgreSQL&lt;/li&gt;&lt;li&gt;Kafka for events&lt;/li&gt;&lt;li&gt;Docker in production&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Send your CV to talent@acme.example or call +62 812-3456-7890.&lt;/p&gt;",
+      "metadata": [{ "name": "Employment Type", "value": "Full-time" }]
+    },
+    {
+      "id": 9002,
+      "title": "Senior Frontend Engineer (React)",
+      "company_name": "Acme Nusantara",
+      "updated_at": "2026-11-22T11:40:00-05:00",
+      "first_published": "2026-11-10T02:30:00-05:00",
+      "absolute_url": "https://boards.greenhouse.io/acmenusantara/jobs/9002",
+      "location": { "name": "Remote - Indonesia" },
+      "content": "&lt;p&gt;Own our customer dashboard. React, TypeScript, and a design system you help shape.&lt;/p&gt;",
+      "metadata": [{ "name": "Employment Type", "value": "Full-time" }]
+    },
+    {
+      "id": 9003,
+      "title": "Data Engineer",
+      "company_name": "Acme Nusantara",
+      "updated_at": "2026-11-23T04:10:00-05:00",
+      "first_published": null,
+      "absolute_url": "https://boards.greenhouse.io/acmenusantara/jobs/9003",
+      "location": { "name": "Bandung, Indonesia" },
+      "content": "&lt;p&gt;Build the warehouse layer. Airflow, dbt, SQL, and a lot of patience.&lt;/p&gt;",
+      "metadata": [{ "name": "Employment Type", "value": "Full-time" }]
+    },
+    {
+      "id": 9004,
+      "title": "QA Automation Engineer",
+      "company_name": "Acme Nusantara",
+      "updated_at": "2026-11-18T08:00:00-05:00",
+      "first_published": "2026-11-01T01:00:00-05:00",
+      "absolute_url": "https://boards.greenhouse.io/acmenusantara/jobs/9004",
+      "location": { "name": "Jakarta, Indonesia" },
+      "content": "&lt;p&gt;Own end to end tests. Playwright, CI pipelines, and an opinion about flaky tests.&lt;/p&gt;",
+      "metadata": [{ "name": "Employment Type", "value": "Contract" }]
+    },
+    {
+      "id": 9005,
+      "title": "Product Designer",
+      "company_name": "Acme Nusantara",
+      "updated_at": "2026-11-24T06:00:00-05:00",
+      "first_published": "2026-11-24T06:00:00-05:00",
+      "absolute_url": "https://boards.greenhouse.io/acmenusantara/jobs/9005",
+      "location": { "name": "Jakarta Barat, Indonesia" },
+      "content": "&lt;p&gt;Figma, user interviews, and a portfolio we can look at.&lt;/p&gt;",
+      "metadata": [{ "name": "Employment Type", "value": "Full-time" }]
+    }
+  ]
+}

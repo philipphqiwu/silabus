@@ -7,7 +7,7 @@ Silabus reads tech job postings in Indonesia and counts which skills actually sh
 
 The part I care about is the gap check: send it the skills you already have and it returns what you are missing for a target role, sorted by how often those skills appear in real postings. The rest of the pipeline exists so that number is worth trusting.
 
-**Status:** early. The schema, URL canonicalization and a `/health` endpoint are in place, and CI runs lint, type checks and tests. Nothing has been ingested yet, so there are no numbers and no demo link.
+**Status:** early. Ingest works for Greenhouse, live or from recorded fixtures, and it is idempotent: running it twice does not add rows. Dedup, skill extraction, `/gap` and the dashboard are still missing, so there are no market numbers yet.
 
 ## Running it
 
@@ -17,16 +17,19 @@ Needs Docker and [uv](https://docs.astral.sh/uv/).
 cp .env.example .env
 make up        # Postgres 16 on 5433
 make migrate   # schema
+make ingest    # loads data/fixtures into listings
 make test
 make api       # http://localhost:8000/health
 ```
+
+The fixture is a recording of the Greenhouse board payload shape, with fictional companies. To pull a real board: `make ingest SOURCE=greenhouse BOARD=<slug>`.
 
 `make help` lists the rest.
 
 ## Layout
 
 ```
-src/silabus/ingest      fetch postings, strip PII, keep raw payloads
+src/silabus/ingest      adapters, PII scrubbing, idempotent writes
 src/silabus/normalize   urls, titles, cities, seniority, description cleanup
 src/silabus/dedup       exact hash first, then MinHash for cross-board duplicates
 src/silabus/extract     skill dictionary, plus an LLM pass for what it misses

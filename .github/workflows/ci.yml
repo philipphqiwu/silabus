@@ -8,6 +8,25 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: silabus
+          POSTGRES_PASSWORD: silabus
+          POSTGRES_DB: silabus
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://silabus:silabus@localhost:5433/silabus
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +46,9 @@ jobs:
 
       - name: Types
         run: uv run mypy
+
+      - name: Migrate
+        run: make migrate
 
       - name: Tests
         run: uv run pytest

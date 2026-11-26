@@ -62,7 +62,10 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
-markers = ["network: hits the real network; excluded by default"]
+markers = [
+  "integration: needs a running Postgres with migrations applied",
+  "network: hits the real network",
+]
 
 [tool.coverage.run]
 source = ["src/silabus"]
