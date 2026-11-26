@@ -28,7 +28,7 @@ reset-db: ## DESTRUCTIVE: drop the volume, recreate, migrate
 taxonomy-sync: ## sync skills.yaml into the skills table
 	uv run silabus taxonomy-sync
 
-ingest: ## ingest postings; SOURCE=fixtures|greenhouse, BOARD=acme
+ingest: ## ingest postings; SOURCE=fixtures|greenhouse|workable, BOARD=acme
 	uv run silabus ingest --source $${SOURCE:-fixtures} $${BOARD:+--board $${BOARD}}
 
 eval: ## score extraction; MODE=smoke (reports only) or full (gates)

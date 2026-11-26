@@ -7,9 +7,10 @@ without the network. `greenhouse` talks to the real board endpoint.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
-from silabus.ingest import ats_greenhouse
+from silabus.ingest import ats_greenhouse, ats_workable
 from silabus.ingest.base import USER_AGENT, PoliteClient, SourceJob
 
 FIXTURE_GLOB = "greenhouse_*.json"
@@ -25,7 +26,9 @@ def load_jobs(
         return _load_fixtures(fixture_dir, board=board)
     if source == "greenhouse":
         return _load_greenhouse(board)
-    raise ValueError(f"unknown source {source!r}; use fixtures or greenhouse")
+    if source == "workable":
+        return _load_workable(board)
+    raise ValueError(f"unknown source {source!r}; use fixtures, greenhouse or workable")
 
 
 def _load_fixtures(fixture_dir: Path, *, board: str | None) -> list[SourceJob]:
@@ -39,7 +42,10 @@ def _load_fixtures(fixture_dir: Path, *, board: str | None) -> list[SourceJob]:
     for path in paths:
         board_name = path.stem.removeprefix("greenhouse_")
         payload = json.loads(path.read_text())
-        jobs.extend(ats_greenhouse.parse_board(payload, board=board_name))
+        parsed = ats_greenhouse.parse_board(payload, board=board_name)
+        # Recorded payloads are labelled as such, so a fixture run can never be
+        # mistaken for live data in the same table.
+        jobs.extend(replace(job, source="fixtures") for job in parsed)
     return jobs
 
 
@@ -49,3 +55,11 @@ def _load_greenhouse(board: str | None) -> list[SourceJob]:
     with PoliteClient(user_agent=USER_AGENT, cache_dir=Path("data/raw/http_cache")) as client:
         payload = ats_greenhouse.fetch_board(client, board)
     return ats_greenhouse.parse_board(payload, board=board)
+
+
+def _load_workable(board: str | None) -> list[SourceJob]:
+    if not board:
+        raise ValueError("--board is required for the workable source")
+    with PoliteClient(user_agent=USER_AGENT, cache_dir=Path("data/raw/http_cache")) as client:
+        payload = ats_workable.fetch_account(client, board)
+    return ats_workable.parse_account(payload, account=board)

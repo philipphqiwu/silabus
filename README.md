@@ -7,7 +7,7 @@ Silabus reads tech job postings in Indonesia and counts which skills actually sh
 
 The part I care about is the gap check: send it the skills you already have and it returns what you are missing for a target role, sorted by how often those skills appear in real postings. The rest of the pipeline exists so that number is worth trusting.
 
-**Status:** early. Ingest works for Greenhouse, live or from recorded fixtures, and it is idempotent: running it twice does not add rows. Dedup, skill extraction, `/gap` and the dashboard are still missing, so there are no market numbers yet.
+**Status:** early. Ingest works for Greenhouse and Workable, live or from recorded fixtures, and it is idempotent: running it twice does not add rows. A first live pull brought in 600 postings from three boards, but those boards are mostly non-engineering roles, so there are no skill numbers yet. Dedup, skill extraction, `/gap` and the dashboard are still missing.
 
 ## Running it
 
@@ -22,7 +22,12 @@ make test
 make api       # http://localhost:8000/health
 ```
 
-The fixture is a recording of the Greenhouse board payload shape, with fictional companies. To pull a real board: `make ingest SOURCE=greenhouse BOARD=<slug>`.
+The fixture is a recording of the Greenhouse board payload shape, with fictional companies. To pull a real board:
+
+```bash
+make ingest SOURCE=greenhouse BOARD=xendit
+make ingest SOURCE=workable BOARD=amartha
+```
 
 `make help` lists the rest.
 
@@ -39,7 +44,7 @@ db/migrations           schema
 
 ## Data
 
-Postings come from public ATS job boards: Greenhouse, Lever, Workable, Ashby. One adapter per vendor, no HTML scraping for now.
+Postings come from public ATS job boards. Adapters exist for Greenhouse and Workable; Lever and Ashby are next. No HTML scraping.
 
 JobStreet, Glints, Kalibrr and LinkedIn are out. Their terms do not allow automated collection and I did not want to build the project around that.
 
@@ -50,6 +55,8 @@ More in [docs/data-sources.md](docs/data-sources.md).
 ## Caveats
 
 The sample will lean toward companies that use a modern ATS and toward jobs in the big cities. It is not a census of the Indonesian job market and I will not describe it as one.
+
+Board slugs also collide across countries. `flip` and `kargo` on Greenhouse are American companies, not the Indonesian ones with those names, so a source gets verified by looking at its locations before it is used.
 
 ## License
 

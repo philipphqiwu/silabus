@@ -25,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     ingest = sub.add_parser("ingest", help="fetch postings into raw_listings and listings")
-    ingest.add_argument("--source", default="fixtures", help="fixtures or greenhouse")
+    ingest.add_argument("--source", default="fixtures", help="fixtures, greenhouse or workable")
     ingest.add_argument("--board", default=None, help="ATS board slug, e.g. acme")
     ingest.add_argument(
         "--fixture-dir",

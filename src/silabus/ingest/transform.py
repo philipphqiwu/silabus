@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from silabus.ingest.base import SourceJob
+from silabus.ingest.base import SourceJob, redact_text
 from silabus.normalize.cities import parse_location
 from silabus.normalize.dates import parse_posted_at
 from silabus.normalize.description import clean_description
@@ -37,7 +37,9 @@ class ListingRow:
 
 def to_listing_row(job: SourceJob) -> ListingRow:
     """Normalize one posting. Raises ValueError on an unusable URL."""
-    description = clean_description(job.description_html)
+    # Redact here as well as in the raw payload: listings.description is the
+    # copy that gets read by humans and by the extractor.
+    description = redact_text(clean_description(job.description_html))
     city, work_mode = parse_location(job.location)
 
     return ListingRow(

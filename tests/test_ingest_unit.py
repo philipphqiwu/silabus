@@ -68,6 +68,13 @@ def test_clean_description_removes_scripts_and_collapses_whitespace() -> None:
         ("Remote - Indonesia", (None, "remote")),
         ("Bandung, Indonesia", ("Bandung", "onsite")),
         ("Hybrid - Jakarta", ("Jakarta", "hybrid")),
+        ("Bangkok, Thailand; Jakarta, Indonesia; Kuala Lumpur, Malaysia", ("Jakarta", "onsite")),
+        ("Hong Kong; Shanghai, China; Taipei, Taiwan", ("Hong Kong", "onsite")),
+        ("India; Jakarta, Indonesia", ("Jakarta", "onsite")),
+        ("Location: Jakarta, Indonesia", ("Jakarta", "onsite")),
+        ("Jakarta or Bandung", ("Jakarta", "onsite")),
+        ("South Jakarta, Indonesia", ("Jakarta", "onsite")),
+        ("West Jakarta", ("Jakarta", "onsite")),
         ("", (None, "unknown")),
     ],
 )
@@ -152,3 +159,68 @@ def test_content_hash_ignores_source_but_not_content() -> None:
 
     assert first == second
     assert first != other_city
+
+
+WORKABLE_PAYLOAD = {
+    "name": "Amartha",
+    "jobs": [
+        {
+            "shortcode": "ABC123",
+            "title": "Senior Backend Engineer",
+            "url": "https://apply.workable.com/j/ABC123",
+            "description": "<p>Go and PostgreSQL. Email jobs@amartha.example</p>",
+            "requirements": "<ul><li>Docker</li><li>Kafka</li></ul>",
+            "published_on": "2026-11-02",
+            "telecommuting": False,
+            "locations": [
+                {
+                    "city": "jakarta selatan",
+                    "region": "DKI Jakarta",
+                    "country": "Indonesia",
+                }
+            ],
+        },
+        {
+            "shortcode": "REMOTE1",
+            "title": "Data Engineer",
+            "url": "https://apply.workable.com/j/REMOTE1",
+            "description": "<p>Airflow and dbt</p>",
+            "published_on": "2026-11-03",
+            "telecommuting": True,
+            "locations": [{"city": "bandung", "region": "West Java", "country": "Indonesia"}],
+        },
+    ],
+}
+
+
+def test_workable_parser_merges_requirements_into_the_description() -> None:
+    from silabus.ingest.ats_workable import parse_account
+
+    jobs = parse_account(WORKABLE_PAYLOAD, account="amartha")
+
+    assert len(jobs) == 2
+    first = jobs[0]
+    assert first.source == "workable"
+    assert first.external_id == "ABC123"
+    assert first.company == "Amartha"
+    assert first.location == "jakarta selatan, DKI Jakarta, Indonesia"
+    assert first.posted_at_raw == "2026-11-02"
+    assert "Docker" in str(first.description_html)
+    assert "Kafka" in str(first.description_html)
+
+
+def test_workable_posting_is_normalized_and_redacted() -> None:
+    from silabus.ingest.ats_workable import parse_account
+
+    jobs = parse_account(WORKABLE_PAYLOAD, account="amartha")
+    first = to_listing_row(jobs[0])
+    second = to_listing_row(jobs[1])
+
+    assert first.role_family == "backend"
+    assert first.seniority == "senior"
+    assert first.city == "Jakarta"
+    assert "jobs@amartha.example" not in first.description
+    assert "Docker" in first.description
+
+    assert second.work_mode == "remote"
+    assert second.role_family == "data"

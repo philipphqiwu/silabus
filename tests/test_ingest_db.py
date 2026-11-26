@@ -6,19 +6,15 @@ workflow starts one and applies the migrations first.
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
 import psycopg
 import pytest
 
 from silabus.db import connect
-from silabus.ingest.ats_greenhouse import parse_board
 from silabus.ingest.base import SourceJob
 from silabus.ingest.runner import run_ingest
-
-FIXTURE = Path("data/fixtures/greenhouse_acmenusantara.json")
+from silabus.ingest.sources import load_jobs
 
 
 def _db_ready() -> bool:
@@ -37,18 +33,17 @@ pytestmark = [
 
 
 @pytest.fixture
-def clean_greenhouse() -> None:
+def clean_fixtures() -> None:
     with connect() as conn:
-        conn.execute("DELETE FROM raw_listings WHERE source = 'greenhouse'")
-        conn.execute("DELETE FROM listings WHERE source = 'greenhouse'")
+        conn.execute("DELETE FROM raw_listings WHERE source = 'fixtures'")
+        conn.execute("DELETE FROM listings WHERE source = 'fixtures'")
 
 
 def _fixture_jobs() -> list[SourceJob]:
-    payload = json.loads(FIXTURE.read_text())
-    return parse_board(payload, board="acmenusantara")
+    return load_jobs("fixtures", board="acmenusantara")
 
 
-def test_ingest_twice_does_not_duplicate(clean_greenhouse: None) -> None:
+def test_ingest_twice_does_not_duplicate(clean_fixtures: None) -> None:
     jobs = _fixture_jobs()
 
     first = run_ingest(jobs, source_name="fixtures")
@@ -58,17 +53,17 @@ def test_ingest_twice_does_not_duplicate(clean_greenhouse: None) -> None:
     assert (second.inserted, second.updated, second.errors) == (0, 5, 0)
 
     with connect() as conn:
-        total = _scalar(conn, "SELECT count(*) FROM listings WHERE source = 'greenhouse'")
+        total = _scalar(conn, "SELECT count(*) FROM listings WHERE source = 'fixtures'")
         assert total == 5
 
         distinct_urls = _scalar(
             conn,
-            "SELECT count(DISTINCT url_canonical) FROM listings WHERE source = 'greenhouse'",
+            "SELECT count(DISTINCT url_canonical) FROM listings WHERE source = 'fixtures'",
         )
         assert distinct_urls == 5
 
 
-def test_every_listing_has_a_cluster(clean_greenhouse: None) -> None:
+def test_every_listing_has_a_cluster(clean_fixtures: None) -> None:
     run_ingest(_fixture_jobs(), source_name="fixtures")
 
     with connect() as conn:
@@ -81,7 +76,7 @@ def test_every_listing_has_a_cluster(clean_greenhouse: None) -> None:
     assert not_self_clustered == 0
 
 
-def test_normalized_fields_land_in_the_columns(clean_greenhouse: None) -> None:
+def test_normalized_fields_land_in_the_columns(clean_fixtures: None) -> None:
     run_ingest(_fixture_jobs(), source_name="fixtures")
 
     with connect() as conn:
@@ -89,12 +84,12 @@ def test_normalized_fields_land_in_the_columns(clean_greenhouse: None) -> None:
             """
             SELECT role_family, city, city_raw, seniority, work_mode, posted_at, description
             FROM listings
-            WHERE source = 'greenhouse' AND external_id = '9001'
+            WHERE source = 'fixtures' AND external_id = '9001'
             """
         ).fetchone()
         others = _scalar(
             conn,
-            "SELECT count(*) FROM listings WHERE source = 'greenhouse' AND role_family = 'other'",
+            "SELECT count(*) FROM listings WHERE source = 'fixtures' AND role_family = 'other'",
         )
 
     assert row is not None
@@ -110,20 +105,20 @@ def test_normalized_fields_land_in_the_columns(clean_greenhouse: None) -> None:
     assert others == 1  # Product Designer
 
 
-def test_contact_details_never_reach_raw_listings(clean_greenhouse: None) -> None:
+def test_contact_details_never_reach_raw_listings(clean_fixtures: None) -> None:
     run_ingest(_fixture_jobs(), source_name="fixtures")
 
     with connect() as conn:
         payloads = [
             str(row[0])
             for row in conn.execute(
-                "SELECT payload::text FROM raw_listings WHERE source = 'greenhouse'"
+                "SELECT payload::text FROM raw_listings WHERE source = 'fixtures'"
             ).fetchall()
         ]
         emails = _scalar(
             conn,
             "SELECT count(*) FROM raw_listings "
-            "WHERE source = 'greenhouse' AND payload::text LIKE '%@acme.example%'",
+            "WHERE source = 'fixtures' AND payload::text LIKE '%@acme.example%'",
         )
 
     assert emails == 0
@@ -132,7 +127,7 @@ def test_contact_details_never_reach_raw_listings(clean_greenhouse: None) -> Non
     assert "[email removed]" in joined or "[phone removed]" in joined
 
 
-def test_ingest_run_is_recorded(clean_greenhouse: None) -> None:
+def test_ingest_run_is_recorded(clean_fixtures: None) -> None:
     run_ingest(_fixture_jobs(), source_name="fixtures")
     run_ingest(_fixture_jobs(), source_name="fixtures")
 
